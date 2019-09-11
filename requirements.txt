@@ -1,0 +1,6 @@
+hug
+pillow
+gunicorn
+PyJWT
+rsa
+cryptography
