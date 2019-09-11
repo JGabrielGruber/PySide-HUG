@@ -1,4 +1,6 @@
-from PySide2 import QtCore, QtWidgets, QtGui
+from	PySide2 import QtCore, QtWidgets, QtGui
+
+from	controllers	import login
 
 class LoginView(QtWidgets.QWidget):
 	def __init__(self):
@@ -24,4 +26,4 @@ class LoginView(QtWidgets.QWidget):
 
 
 	def login(self):
-		self.text.setText("Logged!")
+		login.login(self.username.text(), self.password.text())
