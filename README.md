@@ -45,9 +45,21 @@ In your terminal, and inside the project folder:
 
 1. Navigate to the src folder:
 ```
-cd src/
+cd api/
 ```
 2. Start the hug server:
 ```
 hug -f app.py
+```
+
+### APP usage
+In your terminal, and inside the project folder:
+
+1. Navigate to the src folder:
+```
+cd app/
+```
+2. Start the hug server:
+```
+python app.py
 ```
