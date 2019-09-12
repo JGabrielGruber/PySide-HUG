@@ -2,7 +2,7 @@ import	hug
 
 from 	routes	import auth, media
 
-@hug.extend_api('/media')
+@hug.extend_api('/medias')
 def cliente_api():
 	return [media]
 

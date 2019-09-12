@@ -19,9 +19,10 @@ def get_byId(
 @hug.post('/', requires=auth.basicAccess())
 def post_data(
 	request,
-	response
+	response,
+	body
 ):
-	return controllerMedia.newMedia(request, response)
+	return controllerMedia.newMedia(request, response, body)
 
 @hug.delete('/{id}', requires=auth.basicAccess())
 def delete_data(
