@@ -51,18 +51,25 @@ def deleteMediaById(response, id):
 		return { "error": "unexpected_exception" }
 
 def save(data, fileName):
-	file		= open("./.cache/" + fileName, "r+")
-	file_open	= file.read()
-	if (isJSON(file_open)):
-		content	= json.loads(file_open)
-	else:
+	if not os.path.exists('./.cache'):
+		os.makedirs('./.cache')
+	if os.path.exists('./.cache/' + fileName):
 		content	= []
-	content.append(data)
-	file.close()
-	open("./.cache/"  + fileName, "w").close()
-	file	= open("./.cache/"  + fileName, "r+")
-	file.write(json.dumps(content))
-	file.close()
+		with open('./.cache/' + fileName, mode='rb') as read_file:
+			if (isJSON(read_file.read())):
+				content	= json.loads(read_file.read())
+			else:
+				content	= []
+			content.append(data)
+			read_file.close()
+		open("./.cache/"  + fileName, "w").close()
+		with open('./.cache/' + fileName, mode='r+') as write_file:
+			write_file.write(json.dumps(content))
+			write_file.close()
+	else:
+		with open('./.cache/' + fileName, mode='w') as write_file:
+			write_file.write(json.dumps([]))
+		load(fileName)
 
 def load(fileName):
 	if not os.path.exists('./.cache'):
