@@ -23,8 +23,8 @@ class MainView(QtWidgets.QWidget):
 
 		self.table_upload	= QtWidgets.QTableWidget()
 		self.table_upload.setColumnCount(5)
-		self.table_upload.setHorizontalHeaderLabels(['Name', 'Size', 'Progress', 'Stimated', 'Cancel'])
-		self.table_upload.setModel()
+		self.table_upload.setHorizontalHeaderLabels(['Name', 'Size', 'Progress', 'Estimated', 'Status'])
+		#self.table_upload.setModel()
 
 		self.lists	= QtWidgets.QHBoxLayout()
 		self.lists.addWidget(self.list_medias, 1, QtCore.Qt.AlignLeft)
@@ -33,19 +33,48 @@ class MainView(QtWidgets.QWidget):
 		self.upload.addWidget(self.table_upload)
 
 		self.button_find	= QtWidgets.QPushButton("Search File")
-		self.button_upload	= QtWidgets.QPushButton("Upload File")
 		self.button_find.clicked.connect(self.findFile)
 
-		self.buttons	= QtWidgets.QHBoxLayout()
-		self.buttons.addWidget(self.button_find)
-		self.buttons.addWidget(self.button_upload)
-
-		self.upload.addLayout(self.buttons)
+		self.upload.addWidget(self.button_find)
 
 		self.lists.addLayout(self.upload, 2)
 		self.container.addLayout(self.lists)
 		self.setLayout(self.container)
 	
 	def findFile(self):
-		fileName,	= QtWidgets.QFileDialog.getOpenFileName()
-		main.addUpload(fileName)
+		fileName	= QtWidgets.QFileDialog.getOpenFileName()
+		main.addUpload(fileName[0])
+		self.updateTable()
+	
+	def updateTable(self):
+		if UploadList.uploads:
+			for row, upload in enumerate(UploadList.uploads):
+				self.table_upload.setRowCount(row + 1)
+				self.table_upload.setItem(row, 0, QtWidgets.QTableWidgetItem(upload['name']))
+				self.table_upload.setItem(row, 1, QtWidgets.QTableWidgetItem(str(upload['size'])))
+				self.table_upload.setItem(row, 2, QtWidgets.QTableWidgetItem(upload['progress']))
+				self.table_upload.setItem(row, 3, QtWidgets.QTableWidgetItem(upload['estimated']))
+				if upload['uploading']:
+					self.buttonn_cancel	= QtWidgets.QPushButton('Cancel')
+					self.buttonn_cancel.clicked.connect(self.handleCancel)
+					self.table_upload.setCellWidget(row, 4, self.buttonn_cancel)
+				else:
+					self.buttonn_send	= QtWidgets.QPushButton('Send')
+					self.buttonn_send.clicked.connect(self.handleSend)
+					self.table_upload.setCellWidget(row, 4, self.buttonn_send)
+		else:
+			self.table_upload.setRowCount(0)
+
+	def handleCancel(self):
+		button	= QtGui.qApp.focusWidget()
+		index	= self.table_upload.indexAt(button.pos())
+		if index.isValid():
+			main.cancelUpload(index.row())
+			self.updateTable()
+	
+	def handleSend(self):
+		button	= QtGui.qApp.focusWidget()
+		index	= self.table_upload.indexAt(button.pos())
+		if index.isValid():
+			main.startUpload(index.row())
+			self.updateTable()
