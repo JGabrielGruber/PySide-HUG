@@ -1,6 +1,8 @@
 from	PySide2 import QtCore, QtWidgets, QtGui
 
-from	controllers	import login
+from	controllers		import login as loginController
+from	models.login	import Login
+from	views.main		import MainView
 
 class LoginView(QtWidgets.QWidget):
 	def __init__(self):
@@ -8,12 +10,13 @@ class LoginView(QtWidgets.QWidget):
 
 		self.button		= QtWidgets.QPushButton("Login")
 		self.text		= QtWidgets.QLabel("Inform your credentials \n Username: admin\n Password: senha")
+		self.message	= QtWidgets.QMessageBox()
 		self.username	= QtWidgets.QLineEdit("")
-		self.username.setPlaceholderText("Username")
 		self.password	= QtWidgets.QLineEdit("")
+		self.text.setAlignment(QtCore.Qt.AlignCenter)
+		self.username.setPlaceholderText("Username")
 		self.password.setPlaceholderText("Password")
 		self.password.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
-		self.text.setAlignment(QtCore.Qt.AlignCenter)
 
 		self.layout = QtWidgets.QVBoxLayout()
 		self.layout.addWidget(self.text)
@@ -26,4 +29,16 @@ class LoginView(QtWidgets.QWidget):
 
 
 	def login(self):
-		login.login(self.username.text(), self.password.text())
+		Login.setCredentials(
+			self.username.text(),
+			self.password.text()
+		)
+		resp	= loginController.getToken()
+		if not resp:
+			widget	= MainView()
+			widget.resize(800, 600)
+			widget.show()
+			self.close()
+		else:
+			self.message.setText(resp)
+			self.message.show()
