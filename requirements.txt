@@ -5,3 +5,4 @@ PyJWT
 rsa
 cryptography
 PySide2
+requests_toolbelt

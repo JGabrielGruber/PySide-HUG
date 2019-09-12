@@ -1,6 +1,5 @@
 import	json
 import	os
-import sys, os
 import	random
 from	falcon		import HTTP_201, HTTP_400, HTTP_403, HTTP_500
 from	datetime	import datetime
@@ -36,15 +35,10 @@ def newMedia(request, response, body):
 		if not os.path.exists('./uploads'):
 			os.makedirs('./uploads')
 		with open('./uploads/' + filename, 'wb') as file:
-			#print(request.bounded_stream.read())
-			print(body)
-			file.write(body['media'])
+			file.write(body['media'] if isinstance(body['media'], (bytes, bytearray)) else str.encode(body['media']))
 			file.close()
 		return filename
 	except Exception as e:
-		exc_type, exc_obj, exc_tb = sys.exc_info()
-		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-		print(exc_type, fname, exc_tb.tb_lineno)
 		print(e)
 		response.status = HTTP_500
 		return { "error": "unexpected_exception" }
