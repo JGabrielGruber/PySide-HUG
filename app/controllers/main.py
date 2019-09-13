@@ -16,6 +16,8 @@ class Uploader(QtCore.QThread):
 	def __init__(self, row):
 		QtCore.QThread.__init__(self)
 		self.row	= row
+		self.sent	= 0
+		self.time	= ""
 
 	def run(self):
 		upload				= UploadList.uploads[self.row]
@@ -38,9 +40,6 @@ class Uploader(QtCore.QThread):
 		manager.finished.connect(finished)
 		req	= manager.post(request, multipart)
 		req.uploadProgress.connect(updateProgress(upload))
-
-def update(total):
-	print(total)
 
 def finished(reply):
 	print("Finished: ", reply.readAll())
@@ -111,7 +110,19 @@ def progress(function):
 def updateProgress(sent, total, upload):
 	if total > 0:
 		upload['progress']	= (sent / total) * 100
+		if upload['thread'].sent == 0:
+			upload['thread'].sent	= sent
+			upload['thread'].time	= time.time()
+		else:
+			upload['stimated']	= getTimeLeft(sent, total, upload['thread'].sent, upload['thread'].time)
 		upload['thread'].response.emit()
+
+def getTimeLeft(sent, total, old_sent, old_time):
+	remain	= ((sent - total) * (old_time - time.time())) / sent
+	if remain > 60:
+		return '{0:.1f} min'.format(remain / 60)
+	else:
+		return '{0:.0f} sec'.format(remain)
 
 def convert_bytes(num):
 	for x in ['Bytes', 'KB', 'MB', 'GB', 'TB']:
