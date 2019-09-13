@@ -5,7 +5,7 @@ from	views.login	import LoginView
 
 if __name__ == "__main__":
 	app = QtWidgets.QApplication([])	
-	app.setQuitOnLastWindowClosed(False)
+	#app.setQuitOnLastWindowClosed(False)
 
 	widget = LoginView()
 	widget.resize(300, 200)

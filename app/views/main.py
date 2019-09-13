@@ -1,17 +1,24 @@
 import	time
 
-from	PySide2 import QtCore, QtWidgets, QtGui
+from	PySide2 import QtCore, QtWidgets, QtGui, QtNetwork
 
 from	controllers		import main
 from	models.upload	import UploadList, Upload
+from	models.media	import MediaList, Media
 
 class MainView(QtWidgets.QWidget):
+	sig_updateList	= QtCore.Signal()
+
 	def __init__(self):
 		super().__init__()
 
-		#self.uploader		= main.Uploader(0)
-		#self.uploader.start()
-		#self.connect(self.uploader, QtCore.Signal('STATUS'), self.updateTable)
+		#self.uploader		= main.Uploader()
+		#self.uploader.response.connect(self.updateTable)
+
+		self.sig_updateList.connect(self.updateList)
+
+		self.manager		= QtNetwork.QNetworkAccessManager()
+		self.manager.finished.connect(main.getList(self.sig_updateList))
 
 		self.text_medias	= QtWidgets.QLabel("Files list:")
 		self.text_upload	= QtWidgets.QLabel("Upload list:")
@@ -25,11 +32,10 @@ class MainView(QtWidgets.QWidget):
 		self.container.addLayout(self.titles)
 
 		self.list_medias	= QtWidgets.QListWidget()
-		self.list_medias.addItems(['aaa', 'bbb'])
 
 		self.table_upload	= QtWidgets.QTableWidget()
 		self.table_upload.setColumnCount(5)
-		self.table_upload.setHorizontalHeaderLabels(['Name', 'Size', 'Progress', 'Estimated', 'Status'])
+		self.table_upload.setHorizontalHeaderLabels(['Name', 'Size', 'Progress', 'Estimated', 'Option'])
 
 		self.lists	= QtWidgets.QHBoxLayout()
 		self.lists.addWidget(self.list_medias, 1, QtCore.Qt.AlignLeft)
@@ -41,11 +47,12 @@ class MainView(QtWidgets.QWidget):
 		self.button_find.clicked.connect(self.findFile)
 
 		self.upload.addWidget(self.button_find)
-		#self.uploader.response.connect(self.updateTable)
 
 		self.lists.addLayout(self.upload, 2)
 		self.container.addLayout(self.lists)
 		self.setLayout(self.container)
+
+		main.requestList(self.manager)
 	
 	def findFile(self):
 		fileName	= QtWidgets.QFileDialog.getOpenFileName()
@@ -84,4 +91,9 @@ class MainView(QtWidgets.QWidget):
 		button		= QtGui.qApp.focusWidget()
 		index		= self.table_upload.indexAt(button.pos())
 		if index.isValid():
-			main.sendUpload(index.row(), self.updateTable)
+			main.sendUpload(index.row(), self.manager)
+
+	def updateList(self):
+		if MediaList.medias:
+			for media in MediaList.medias:
+				self.list_medias.addItem(media['filename'] + " - " + media['timestamp'])

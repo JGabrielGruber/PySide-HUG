@@ -8,41 +8,8 @@ from	requests_toolbelt	import MultipartEncoder, MultipartEncoderMonitor
 from	io					import BytesIO, StringIO
 
 from	models.upload	import Upload, UploadList
+from	models.media	import Media, MediaList
 from	models.login	import Login
-
-class Uploader(QtCore.QThread):
-	response	= QtCore.Signal()
-
-	def __init__(self, row):
-		QtCore.QThread.__init__(self)
-		self.row	= row
-		self.sent	= 0
-		self.time	= ""
-
-	def run(self):
-		upload				= UploadList.uploads[self.row]
-		upload['uploading']	= True
-		self.response.emit()
-		filename			= upload['name'].split('/')[-1]
-		filedata			= QtCore.QFile(upload['name'])
-		filedata.open(QtCore.QFile.ReadOnly)
-		multipart	= construct_multipart({ "media": filedata })
-		url			= QtCore.QUrl('http://127.0.0.1:8000/medias')
-		request		= QtNetwork.QNetworkRequest()
-		request.setUrl(url)
-		request.setRawHeader('Authorization'.encode(), ('Bearer ' + Login.token).encode())
-		request.setRawHeader('FILENAME'.encode(), filename.encode())
-		request.setHeader(
-			QtNetwork.QNetworkRequest.ContentTypeHeader,
-			'multipart/form-data; boundary=%s' % multipart.boundary
-		)
-		manager	= QtNetwork.QNetworkAccessManager()
-		manager.finished.connect(finished)
-		req	= manager.post(request, multipart)
-		req.uploadProgress.connect(updateProgress(upload))
-
-def finished(reply):
-	print("Finished: ", reply.readAll())
 
 def construct_multipart(files):
 	multiPart = QtNetwork.QHttpMultiPart(QtNetwork.QHttpMultiPart.FormDataType)
@@ -56,48 +23,58 @@ def construct_multipart(files):
 		multiPart.append(imagePart)
 	return multiPart
 
-def send(row):
-	upload	= UploadList.uploads[row]
-	upload['uploading']	= True
-	with open(upload['name'], 'rb') as f:
-		filename	= upload['name'].split('/')[-1]
-		curl		= pycurl.Curl()
-		curl.setopt(curl.POST, 1)
-		curl.setopt(curl.NOPROGRESS, 0)
-		#curl.setopt(curl.PROGRESSFUNCTION, updateProgress(upload))
-		curl.setopt(curl.HTTPPOST, [('title', 'test'), (('media', (curl.FORM_FILE, upload['name'])))])
-		curl.setopt(curl.HTTPHEADER, [
-			'Authorization: Bearer ' + Login.token,
-			'FILENAME: ' + filename
-		])
-		curl.setopt(curl.VERBOSE, 1)
-		bodyOutput		= BytesIO()
-		headersOutput	= StringIO()
-		curl.setopt(curl.WRITEFUNCTION, bodyOutput.write)
-		curl.setopt(curl.URL, 'http://127.0.0.1:8000/medias')
-		curl.setopt(curl.WRITEFUNCTION, headersOutput.write)
-		curl.perform()
-		#print(bodyOutput.getvalue)
-
 def addUpload(fileName):
 	UploadList.addUpload(
 		Upload(random.randint(0, 9999),
 		fileName,
 		convert_bytes(os.path.getsize(fileName)),
 		0,
-		"",
-		Uploader(0)))
+		""))
 
-def sendUpload(row, fun):
+def sendUpload(row, manager):
 	upload	= UploadList.uploads[row]
-	upload['thread'].row	= row
-	upload['thread'].response.connect(fun)
-	upload['thread'].start()
+	upload['uploading']	= True
+	filename			= upload['name'].split('/')[-1]
+
+	multiPart			= QtNetwork.QHttpMultiPart(QtNetwork.QHttpMultiPart.ContentType.RelatedType)
+	filedata			= QtNetwork.QHttpPart()
+	filedata.setHeader(QtNetwork.QNetworkRequest.ContentTypeHeader,
+		"image/jpeg")
+	filedata.setHeader(QtNetwork.QNetworkRequest.ContentDispositionHeader,
+		"form-data; name=media;")
+
+	file	= QtCore.QFile(upload['name'])
+	#file.ReadOnly()
+	file.setParent(multiPart)
+	filedata.setBodyDevice(file)
+	multiPart.append(filedata)
+
+	#multipart	= construct_multipart({ "media": filedata })
+	url			= QtCore.QUrl('http://127.0.0.1:8000/medias')
+	request		= QtNetwork.QNetworkRequest()
+	request.setUrl(url)
+	request.setRawHeader('Authorization'.encode(), ('Bearer ' + Login.token).encode())
+	request.setRawHeader('FILENAME'.encode(), filename.encode())
+	#upload['thread']	= QtNetwork.QNetworkAccessManager()
+	print("AA")
+	try:
+		manager.finished.connect(finishUpload)
+		rep	= manager.post(request, multiPart)
+		#rep	= manager.post(request, QHttpMultiPart())
+		#rep	= manager.get(request)
+		manager.setParent(rep)
+		#req.uploadProgress.connect(updateProgress(upload))
+		print("eee")
+	except Exception as e:
+		print(e)
 
 def cancelUpload(row):
 	upload	= UploadList.uploads[row]
 	upload['thread'].terminate()
 	UploadList.uploads.pop(row)
+
+def finishUpload():
+	print("Deu boa")
 
 def progress(function):
 	def wrapper(upload):
@@ -116,6 +93,36 @@ def updateProgress(sent, total, upload):
 		else:
 			upload['stimated']	= getTimeLeft(sent, total, upload['thread'].sent, upload['thread'].time)
 		upload['thread'].response.emit()
+
+def requestList(manager):
+	url		= QtCore.QUrl('http://127.0.0.1:8000/medias')
+	request	= QtNetwork.QNetworkRequest()
+	request.setUrl(url)
+	request.setRawHeader('Authorization'.encode(), ('Bearer ' + Login.token).encode())
+	manager.get(request)
+
+def getReply(function):
+	def wrapper(fun):
+		def passIt(reply, **kwargs):
+			return function(reply, fun, **kwargs)
+		return passIt
+	return wrapper
+
+@getReply
+def getList(reply, fun):
+	try:
+		data	= json.loads(reply.readAll().data().decode('utf-8'))
+		for item in data:
+			MediaList.addMedia(Media(
+				item['id'],
+				item['filename'],
+				item['timestamp']
+			))
+		fun.emit()
+	except Exception as e:
+		print(e)
+		pass
+
 
 def getTimeLeft(sent, total, old_sent, old_time):
 	remain	= ((sent - total) * (old_time - time.time())) / sent

@@ -1,11 +1,11 @@
 class Media():
 	id			= ""
-	name		= ""
+	filename		= ""
 	timestamp	= ""
 
-	def __init__(self, id, name, timestamp):
+	def __init__(self, id, filename, timestamp):
 		self.id			= id
-		self.name		= name
+		self.filename	= filename
 		self.timestamp	= timestamp
 
 class MediaList():

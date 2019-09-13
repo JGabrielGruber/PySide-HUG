@@ -16,6 +16,4 @@ def getToken():
 		else:
 			return content["error"]
 	except Exception:
-		return "Unexpected error"
-
-# requests.request('POST', "localhost:8000/medias", files={'upload_file': open('file.txt','rb')})
+		return "Cannot connect to the server..."
