@@ -30,7 +30,7 @@ git clone https://github.com/JGabrielGruber/PySide-HUG.git
 ```
 5. Navigate into the project folder:
 ```
-cd GetJob_API\
+cd PySide-HUG\
 ```
 6. Install the requirements:
 ```
