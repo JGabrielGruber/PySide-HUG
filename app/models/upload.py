@@ -6,13 +6,14 @@ class Upload():
 	estimated	= ""
 	uploading	= False
 
-	def __init__(self, id, name, size, progress, estimated):
+	def __init__(self, id, name, size, progress, estimated, thread):
 		self.id			= id
 		self.name		= name
 		self.size		= size
 		self.progress	= progress
 		self.estimated	= estimated
 		self.uploading	= False
+		self.thread		= thread
 
 class UploadList():
 	uploads	= []

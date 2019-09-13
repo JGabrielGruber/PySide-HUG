@@ -1,13 +1,15 @@
+import	time
+
 from	PySide2 import QtCore, QtWidgets, QtGui
 
 from	controllers		import main
 from	models.upload	import UploadList, Upload
 
-class MainView(QtWidgets.QDialog):
+class MainView(QtWidgets.QWidget):
 	def __init__(self):
 		super().__init__()
 
-		self.uploader		= main.Uploader(0)
+		#self.uploader		= main.Uploader(0)
 		#self.uploader.start()
 		#self.connect(self.uploader, QtCore.Signal('STATUS'), self.updateTable)
 
@@ -50,13 +52,15 @@ class MainView(QtWidgets.QDialog):
 		main.addUpload(fileName[0])
 		self.updateTable()
 	
-	def updateTable(self, status=None):
+	def updateTable(self):
 		if UploadList.uploads:
 			for row, upload in enumerate(UploadList.uploads):
 				self.table_upload.setRowCount(row + 1)
 				self.table_upload.setItem(row, 0, QtWidgets.QTableWidgetItem(upload['name']))
 				self.table_upload.setItem(row, 1, QtWidgets.QTableWidgetItem(str(upload['size'])))
-				self.table_upload.setItem(row, 2, QtWidgets.QTableWidgetItem(upload['progress']))
+				progressBar	= QtWidgets.QProgressBar()
+				progressBar.setValue(upload['progress'])
+				self.table_upload.setCellWidget(row, 2, progressBar)
 				self.table_upload.setItem(row, 3, QtWidgets.QTableWidgetItem(upload['estimated']))
 				if upload['uploading']:
 					self.buttonn_cancel	= QtWidgets.QPushButton('Cancel')
@@ -80,9 +84,4 @@ class MainView(QtWidgets.QDialog):
 		button		= QtGui.qApp.focusWidget()
 		index		= self.table_upload.indexAt(button.pos())
 		if index.isValid():
-			self.uploader.row	= index.row()
-			self.uploader.start()
-			#uploader	= main.Uploader(index.row())
-			#uploader.run()
-			#main.startUpload(index.row())
-			self.updateTable()
+			main.sendUpload(index.row(), self.updateTable)
