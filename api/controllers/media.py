@@ -1,5 +1,5 @@
 import	json
-import	os
+import	sys, os
 import	random
 from	falcon		import HTTP_201, HTTP_400, HTTP_403, HTTP_500
 from	datetime	import datetime
@@ -40,6 +40,9 @@ def newMedia(request, response, body):
 		return filename
 	except Exception as e:
 		print(e)
+		exc_type, exc_obj, exc_tb = sys.exc_info()
+		fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+		print(exc_type, fname, exc_tb.tb_lineno)
 		response.status = HTTP_500
 		return { "error": "unexpected_exception" }
 
@@ -56,8 +59,9 @@ def save(data, fileName):
 	if os.path.exists('./.cache/' + fileName):
 		content	= []
 		with open('./.cache/' + fileName, mode='rb') as read_file:
-			if (isJSON(read_file.read())):
-				content	= json.loads(read_file.read())
+			read	= read_file.read()
+			if (isJSON(read)):
+				content	= json.loads(read)
 			else:
 				content	= []
 			content.append(data)

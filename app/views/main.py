@@ -1,11 +1,15 @@
 from	PySide2 import QtCore, QtWidgets, QtGui
 
 from	controllers		import main
-from	models.upload	import  UploadList, Upload
+from	models.upload	import UploadList, Upload
 
-class MainView(QtWidgets.QWidget):
+class MainView(QtWidgets.QDialog):
 	def __init__(self):
 		super().__init__()
+
+		self.uploader		= main.Uploader(0)
+		#self.uploader.start()
+		#self.connect(self.uploader, QtCore.Signal('STATUS'), self.updateTable)
 
 		self.text_medias	= QtWidgets.QLabel("Files list:")
 		self.text_upload	= QtWidgets.QLabel("Upload list:")
@@ -24,7 +28,6 @@ class MainView(QtWidgets.QWidget):
 		self.table_upload	= QtWidgets.QTableWidget()
 		self.table_upload.setColumnCount(5)
 		self.table_upload.setHorizontalHeaderLabels(['Name', 'Size', 'Progress', 'Estimated', 'Status'])
-		#self.table_upload.setModel()
 
 		self.lists	= QtWidgets.QHBoxLayout()
 		self.lists.addWidget(self.list_medias, 1, QtCore.Qt.AlignLeft)
@@ -36,6 +39,7 @@ class MainView(QtWidgets.QWidget):
 		self.button_find.clicked.connect(self.findFile)
 
 		self.upload.addWidget(self.button_find)
+		#self.uploader.response.connect(self.updateTable)
 
 		self.lists.addLayout(self.upload, 2)
 		self.container.addLayout(self.lists)
@@ -46,7 +50,7 @@ class MainView(QtWidgets.QWidget):
 		main.addUpload(fileName[0])
 		self.updateTable()
 	
-	def updateTable(self):
+	def updateTable(self, status=None):
 		if UploadList.uploads:
 			for row, upload in enumerate(UploadList.uploads):
 				self.table_upload.setRowCount(row + 1)
@@ -73,8 +77,12 @@ class MainView(QtWidgets.QWidget):
 			self.updateTable()
 	
 	def handleSend(self):
-		button	= QtGui.qApp.focusWidget()
-		index	= self.table_upload.indexAt(button.pos())
+		button		= QtGui.qApp.focusWidget()
+		index		= self.table_upload.indexAt(button.pos())
 		if index.isValid():
-			main.startUpload(index.row())
+			self.uploader.row	= index.row()
+			self.uploader.start()
+			#uploader	= main.Uploader(index.row())
+			#uploader.run()
+			#main.startUpload(index.row())
 			self.updateTable()
