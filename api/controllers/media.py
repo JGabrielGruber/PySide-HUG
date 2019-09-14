@@ -28,16 +28,16 @@ def getMediaById(response, id):
 def newMedia(request, response, body):
 	try:
 		filename	= request.headers['FILENAME']
-		save({
-			"id": random.randint(0, 99999),
-			"filename": filename,
-			"timestamp": str(datetime.now())
-		}, "medias.json")
 		if not os.path.exists('./uploads'):
 			os.makedirs('./uploads')
 		with open('./uploads/' + filename, 'wb') as file:
 			file.write(request.bounded_stream.read())
 			file.close()
+			save({
+				"id": random.randint(0, 99999),
+				"filename": filename,
+				"timestamp": str(datetime.now())
+			}, "medias.json")
 		return filename
 	except Exception as e:
 		print(e)

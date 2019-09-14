@@ -34,8 +34,13 @@ def sendUpload(row):
 	upload				= UploadList.uploads[row]
 	upload['uploading']	= True
 	filename			= upload['name'].split('/')[-1]
+
 	multiPart			= QtNetwork.QHttpMultiPart(QtNetwork.QHttpMultiPart.ContentType.RelatedType)
 	filedata			= QtNetwork.QHttpPart()
+	filedata.setHeader(QtNetwork.QNetworkRequest.ContentTypeHeader,
+		"image/jpeg")
+	filedata.setHeader(QtNetwork.QNetworkRequest.ContentDispositionHeader,
+		"form-data; name=media;")
 
 	file	= QtCore.QFile(upload['name'])
 	file.open(QtCore.QIODevice.ReadOnly)
@@ -51,18 +56,19 @@ def sendUpload(row):
 	request.setRawHeader('Authorization'.encode(), ('Bearer ' + Login.token).encode())
 	request.setRawHeader('FILENAME'.encode(), filename.encode())
 	upload['manager']	= QtNetwork.QNetworkAccessManager()
-	upload['manager'].finished.connect(finishUpload(row))
 	try:
 		upload['reply']	= upload['manager'].post(request, upload['multiPart'])
 		upload['manager'].setParent(upload['reply'])
+		upload['reply'].finished.connect(finishUpload(row))
 		upload['reply'].uploadProgress.connect(updateProgress(upload))
 	except Exception as e:
 		print(e)
 
 def cancelUpload(row):
 	upload	= UploadList.uploads[row]
-	upload['reply'].abort()
-	UploadList.uploads.pop(row)
+	if upload['reply'].isRunning():
+		upload['reply'].abort()
+		UploadList.uploads.pop(row)
 
 def finishUpload(row):
 	upload	= UploadList.uploads[row]
@@ -84,7 +90,7 @@ def updateProgress(sent, total, upload):
 			upload['sent']	= sent
 			upload['time']	= time.time()
 		else:
-			upload['stimated']	= getTimeLeft(sent, total, upload['sent'], upload['time'])
+			upload['estimated']	= getTimeLeft(sent, total, upload['sent'], upload['time'])
 		upload['signal'].sender.emit()
 
 def requestList(manager):
