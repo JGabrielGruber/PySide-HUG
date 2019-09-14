@@ -11,7 +11,11 @@ if __name__ == "__main__":
 	widget.resize(300, 200)
 	widget.show()
 
-	tray = QtWidgets.QSystemTrayIcon(QtGui.QIcon("ico.png"), app)
+	icon	= QtGui.QIcon("icon.png")
+
+	app.setWindowIcon(icon)
+
+	tray = QtWidgets.QSystemTrayIcon(icon, app)
 	tray.setVisible(True)
 
 	def showApp():

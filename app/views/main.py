@@ -94,7 +94,7 @@ class MainView(QtWidgets.QWidget):
 					self.buttonn_done	= QtWidgets.QPushButton('Done')
 					self.buttonn_done.pressed.connect(self.handleDone)
 					self.table_upload.setCellWidget(row, 4, self.buttonn_done)
-			self.updateList()
+			main.requestList(self.manager)
 		else:
 			self.table_upload.setRowCount(0)
 
@@ -120,5 +120,8 @@ class MainView(QtWidgets.QWidget):
 
 	def updateList(self):
 		if MediaList.medias:
+			for row in range(0, self.list_medias.count()):
+				item	= self.list_medias.takeItem(row)
+				self.list_medias.removeItemWidget(item)
 			for media in MediaList.medias:
 				self.list_medias.addItem(media['filename'] + " - " + media['timestamp'])

@@ -116,6 +116,7 @@ def getReply(function):
 def getList(reply, fun):
 	try:
 		data	= json.loads(reply.readAll().data().decode('utf-8'))
+		MediaList.medias	= []
 		for item in data:
 			MediaList.addMedia(Media(
 				item['id'],
