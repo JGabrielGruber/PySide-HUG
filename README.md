@@ -22,7 +22,7 @@ cd PySide-HUG\
 ```
 3. Activate the env source to your terminal:
 ```
-PySide-HUG
+.\Scripts\activate
 ```
 4. Clone the repository:
 ```
@@ -43,9 +43,9 @@ This project use TAB(not space) of the size 4.
 ### API usage
 In your terminal, and inside the project folder:
 
-1. Navigate to the src folder:
+1. Navigate to the api src folder:
 ```
-cd api/
+cd api\
 ```
 2. Start the hug server:
 ```
@@ -55,11 +55,11 @@ hug -f app.py
 ### APP usage
 In your terminal, and inside the project folder:
 
-1. Navigate to the src folder:
+1. Navigate to the app src folder:
 ```
-cd app/
+cd app\
 ```
-2. Start the hug server:
+2. Start the App:
 ```
 python app.py
 ```
