@@ -6,7 +6,17 @@ from	controllers		import main
 from	models.upload	import UploadList, Upload
 from	models.media	import MediaList, Media
 
-class MainView(QtWidgets.QWidget):
+class VisEventQWidget(QtWidgets.QWidget):
+	widgetVisibilityChanged	= QtCore.Signal(bool)
+
+	def hideEvent(self, event):
+		self.widgetVisibilityChanged.emit(False)
+
+	def showEvent(self, event):
+		self.widgetVisibilityChanged.emit(True)
+
+
+class MainView(VisEventQWidget):
 	sig_updateList	= QtCore.Signal()
 
 	def __init__(self):
@@ -53,11 +63,13 @@ class MainView(QtWidgets.QWidget):
 		self.setLayout(self.container)
 
 		main.requestList(self.manager)
+		self.updateTable()
 	
 	def findFile(self):
 		fileName	= QtWidgets.QFileDialog.getOpenFileName()
-		main.addUpload(fileName[0])
-		self.updateTable()
+		if fileName[0] != "":
+			main.addUpload(fileName[0], self.updateTable)
+			self.updateTable()
 	
 	def updateTable(self):
 		if UploadList.uploads:

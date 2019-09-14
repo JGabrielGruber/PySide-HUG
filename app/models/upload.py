@@ -1,4 +1,9 @@
-class Upload():
+from	PySide2	import QtCore
+
+class SendSignal(QtCore.QObject):
+	sender = QtCore.Signal()
+
+class Upload(QtCore.QObject):
 	id			= ""
 	name		= ""
 	size		= ""
@@ -6,16 +11,21 @@ class Upload():
 	estimated	= ""
 	uploading	= False
 
-	def __init__(self, id, name, size, progress, estimated):
+	def __init__(self, id, name, size, fun):
 		self.id			= id
 		self.name		= name
 		self.size		= size
-		self.progress	= progress
-		self.estimated	= estimated
+		self.progress	= 0
+		self.estimated	= ""
 		self.uploading	= False
 		self.manager	= None
 		self.time		= ""
 		self.sent		= 0
+		self.reply		= None
+		self.stream		= None
+		self.multiPart	= None
+		self.signal		= SendSignal()
+		self.signal.sender.connect(fun)
 
 class UploadList():
 	uploads	= []
