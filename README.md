@@ -45,7 +45,7 @@ In your terminal, and inside the project folder:
 
 1. Navigate to the api src folder:
 ```
-cd api/
+cd api\
 ```
 2. Start the hug server:
 ```
@@ -57,7 +57,7 @@ In your terminal, and inside the project folder:
 
 1. Navigate to the app src folder:
 ```
-cd app/
+cd app\
 ```
 2. Start the App:
 ```
