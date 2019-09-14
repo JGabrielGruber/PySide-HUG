@@ -13,7 +13,7 @@ class Upload():
 		self.progress	= progress
 		self.estimated	= estimated
 		self.uploading	= False
-		self.thread		= None
+		self.manager	= None
 		self.time		= ""
 		self.sent		= 0
 

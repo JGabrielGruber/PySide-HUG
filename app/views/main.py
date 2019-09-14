@@ -91,7 +91,7 @@ class MainView(QtWidgets.QWidget):
 		button		= QtGui.qApp.focusWidget()
 		index		= self.table_upload.indexAt(button.pos())
 		if index.isValid():
-			main.sendUpload(index.row(), self.manager)
+			main.sendUpload(index.row())
 
 	def updateList(self):
 		if MediaList.medias:

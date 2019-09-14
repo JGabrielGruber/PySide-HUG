@@ -5,13 +5,13 @@ from	views.login	import LoginView
 
 if __name__ == "__main__":
 	app = QtWidgets.QApplication([])	
-	#app.setQuitOnLastWindowClosed(False)
+	app.setQuitOnLastWindowClosed(False)
 
 	widget = LoginView()
 	widget.resize(300, 200)
 	widget.show()
 
-	tray = QtWidgets.QSystemTrayIcon(QtGui.QIcon("icon.png"), app)
+	tray = QtWidgets.QSystemTrayIcon(QtGui.QIcon("ico.png"), app)
 	tray.setVisible(True)
 
 	def showApp():
@@ -26,6 +26,7 @@ if __name__ == "__main__":
 	exit = QtWidgets.QAction("Exit App")
 	exit.triggered.connect(exitApp)
 	menu.addAction(show)
+	menu.addSeparator()
 	menu.addAction(exit)
 
 	tray.setContextMenu(menu)

@@ -31,8 +31,8 @@ def addUpload(fileName):
 		0,
 		""))
 
-def sendUpload(row, manager):
-	upload	= UploadList.uploads[row]
+def sendUpload(row):
+	upload				= UploadList.uploads[row]
 	upload['uploading']	= True
 	filename			= upload['name'].split('/')[-1]
 
@@ -55,14 +55,14 @@ def sendUpload(row, manager):
 	request.setUrl(url)
 	request.setRawHeader('Authorization'.encode(), ('Bearer ' + Login.token).encode())
 	request.setRawHeader('FILENAME'.encode(), filename.encode())
-	#upload['thread']	= QtNetwork.QNetworkAccessManager()
+	upload['manager']	= QtNetwork.QNetworkAccessManager()
+	upload['manager'].finished.connect(finishUpload)
 	print("AA")
 	try:
-		manager.finished.connect(finishUpload)
-		rep	= manager.post(request, multiPart)
+		#rep	= manager.post(request, multiPart)
 		#rep	= manager.post(request, QHttpMultiPart())
-		#rep	= manager.get(request)
-		manager.setParent(rep)
+		rep	= upload['manager'].get(request)
+		upload['manager'].setParent(rep)
 		#req.uploadProgress.connect(updateProgress(upload))
 		print("eee")
 	except Exception as e:
@@ -70,7 +70,7 @@ def sendUpload(row, manager):
 
 def cancelUpload(row):
 	upload	= UploadList.uploads[row]
-	upload['thread'].terminate()
+	upload['manager'].abort()
 	UploadList.uploads.pop(row)
 
 def finishUpload():
@@ -87,12 +87,12 @@ def progress(function):
 def updateProgress(sent, total, upload):
 	if total > 0:
 		upload['progress']	= (sent / total) * 100
-		if upload['thread'].sent == 0:
-			upload['thread'].sent	= sent
-			upload['thread'].time	= time.time()
+		if upload['manager'].sent == 0:
+			upload['manager'].sent	= sent
+			upload['manager'].time	= time.time()
 		else:
-			upload['stimated']	= getTimeLeft(sent, total, upload['thread'].sent, upload['thread'].time)
-		upload['thread'].response.emit()
+			upload['stimated']	= getTimeLeft(sent, total, upload['manager'].sent, upload['manager'].time)
+		upload['manager'].response.emit()
 
 def requestList(manager):
 	url		= QtCore.QUrl('http://127.0.0.1:8000/medias')
