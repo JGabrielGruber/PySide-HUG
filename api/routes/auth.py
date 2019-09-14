@@ -1,7 +1,7 @@
 import	hug
 
 from	controllers	import auth
-from	lib.veryx	import auth as veryx
+from	libraries.veryx	import auth as veryx
 
 @hug.post('/token', version=1)
 def get_token(

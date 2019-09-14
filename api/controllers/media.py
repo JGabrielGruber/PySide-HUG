@@ -1,7 +1,7 @@
 import	json
 import	sys, os
 import	random
-import time
+import	time
 from	falcon		import HTTP_201, HTTP_400, HTTP_403, HTTP_500
 from	datetime	import datetime
 

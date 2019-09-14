@@ -4,7 +4,7 @@ import	os
 
 from	falcon			import HTTP_400, HTTP_403, HTTP_500
 
-from	lib.cryption    import	cryptKey
+from	libraries.cryption    import	cryptKey
 
 def setAuth(response, client_id, client_secret, level="cliente"):
 	try:

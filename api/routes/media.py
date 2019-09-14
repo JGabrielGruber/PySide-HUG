@@ -1,6 +1,6 @@
 import	hug
 
-from	lib.veryx	import auth
+from	libraries.veryx	import auth
 from	controllers	import media as controllerMedia
 
 @hug.get('/', requires=auth.basicAccess())
