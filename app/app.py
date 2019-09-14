@@ -15,7 +15,7 @@ if __name__ == "__main__":
 	tray.setVisible(True)
 
 	def showApp():
-		widget.show()
+		widget.showMain()
 
 	def exitApp():
 		app.exit()

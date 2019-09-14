@@ -6,17 +6,7 @@ from	controllers		import main
 from	models.upload	import UploadList, Upload
 from	models.media	import MediaList, Media
 
-class VisEventQWidget(QtWidgets.QWidget):
-	widgetVisibilityChanged	= QtCore.Signal(bool)
-
-	def hideEvent(self, event):
-		self.widgetVisibilityChanged.emit(False)
-
-	def showEvent(self, event):
-		self.widgetVisibilityChanged.emit(True)
-
-
-class MainView(VisEventQWidget):
+class MainView(QtWidgets.QWidget):
 	sig_updateList	= QtCore.Signal()
 
 	def __init__(self):

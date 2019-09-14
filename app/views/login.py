@@ -1,3 +1,4 @@
+import	time
 from	PySide2 import QtCore, QtWidgets, QtGui
 
 from	controllers		import login as loginController
@@ -5,6 +6,7 @@ from	models.login	import Login
 from	views.main		import MainView
 
 class LoginView(QtWidgets.QWidget):
+	main	= None
 	def __init__(self):
 		super().__init__()
 
@@ -27,6 +29,9 @@ class LoginView(QtWidgets.QWidget):
 
 		self.button.clicked.connect(self.login)
 
+	def showMain(self):
+		if Login.token:
+			self.main.show()
 
 	def login(self):
 		Login.setCredentials(
@@ -35,10 +40,10 @@ class LoginView(QtWidgets.QWidget):
 		)
 		resp	= loginController.getToken()
 		if not resp:
-			widget	= MainView()
-			widget.resize(800, 600)
-			widget.show()
-			self.close()
+			self.main	= MainView()
+			self.main.resize(800, 600)
+			self.main.show()
+			self.hide()
 		else:
 			self.message.setText(resp)
 			self.message.show()
