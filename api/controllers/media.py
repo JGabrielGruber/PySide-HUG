@@ -30,7 +30,7 @@ def newMedia(request, response, body):
 		filename	= request.headers['FILENAME']
 		if not os.path.exists('./uploads'):
 			os.makedirs('./uploads')
-		with open('./uploads/' + filename, 'wb') as file:
+		with open('./uploads/~tmp', 'wb') as file:
 			file.write(request.bounded_stream.read())
 			file.close()
 			save({
@@ -38,6 +38,15 @@ def newMedia(request, response, body):
 				"filename": filename,
 				"timestamp": str(datetime.now())
 			}, "medias.json")
+		len	= 0
+		with open('./uploads/~tmp', "rb") as input:
+			for x in input:
+				len += 1
+		with open('./uploads/~tmp', "rb") as input:
+			with open('./uploads/' + filename, "wb") as output:
+				for key, line in enumerate(input):
+					if key > 3 and key < (len - 2):
+						output.write(line)
 		return filename
 	except Exception as e:
 		print(e)
