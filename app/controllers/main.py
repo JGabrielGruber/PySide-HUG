@@ -1,11 +1,8 @@
 import	json
 import	random
-import	pycurl
 import	os
 import	time
 from	PySide2				import QtCore, QtNetwork
-from	requests_toolbelt	import MultipartEncoder, MultipartEncoderMonitor
-from	io					import BytesIO, StringIO
 
 from	models.upload	import Upload, UploadList
 from	models.media	import Media, MediaList
