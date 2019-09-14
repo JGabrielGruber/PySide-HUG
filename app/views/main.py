@@ -61,8 +61,19 @@ class MainView(QtWidgets.QWidget):
 			main.addUpload(fileName[0], self.updateTable)
 			self.updateTable()
 	
-	def updateTable(self):
-		if UploadList.uploads:
+	def updateTable(self, upload=None, row=None):
+		if UploadList.uploads and row != None and upload:
+			self.table_upload.cellWidget(row, 2).setValue(upload['progress'])
+			self.table_upload.setItem(row, 3, QtWidgets.QTableWidgetItem(upload['estimated']))
+			if upload['uploading']:
+				self.buttonn_cancel	= QtWidgets.QPushButton('Cancel')
+				self.buttonn_cancel.pressed.connect(self.handleCancel)
+				self.table_upload.setCellWidget(row, 4, self.buttonn_cancel)
+			else:
+				self.buttonn_done	= QtWidgets.QPushButton('Done')
+				self.buttonn_done.pressed.connect(self.handleDone)
+				self.table_upload.setCellWidget(row, 4, self.buttonn_done)
+		elif UploadList.uploads:
 			for row, upload in enumerate(UploadList.uploads):
 				self.table_upload.setRowCount(row + 1)
 				self.table_upload.setItem(row, 0, QtWidgets.QTableWidgetItem(upload['name']))
@@ -71,14 +82,19 @@ class MainView(QtWidgets.QWidget):
 				progressBar.setValue(upload['progress'])
 				self.table_upload.setCellWidget(row, 2, progressBar)
 				self.table_upload.setItem(row, 3, QtWidgets.QTableWidgetItem(upload['estimated']))
-				if upload['uploading']:
+				if upload['uploading'] == True:
 					self.buttonn_cancel	= QtWidgets.QPushButton('Cancel')
-					self.buttonn_cancel.clicked.connect(self.handleCancel)
+					self.buttonn_cancel.pressed.connect(self.handleCancel)
 					self.table_upload.setCellWidget(row, 4, self.buttonn_cancel)
-				else:
+				elif upload['uploading'] == False:
 					self.buttonn_send	= QtWidgets.QPushButton('Send')
-					self.buttonn_send.clicked.connect(self.handleSend)
+					self.buttonn_send.pressed.connect(self.handleSend)
 					self.table_upload.setCellWidget(row, 4, self.buttonn_send)
+				else:
+					self.buttonn_done	= QtWidgets.QPushButton('Done')
+					self.buttonn_done.pressed.connect(self.handleDone)
+					self.table_upload.setCellWidget(row, 4, self.buttonn_done)
+			self.updateList()
 		else:
 			self.table_upload.setRowCount(0)
 
@@ -94,6 +110,13 @@ class MainView(QtWidgets.QWidget):
 		index		= self.table_upload.indexAt(button.pos())
 		if index.isValid():
 			main.sendUpload(index.row())
+
+	def handleDone(self):
+		button	= QtGui.qApp.focusWidget()
+		index	= self.table_upload.indexAt(button.pos())
+		if index.isValid():
+			main.doneUpload(index.row())
+			self.updateTable()
 
 	def updateList(self):
 		if MediaList.medias:

@@ -59,8 +59,7 @@ def sendUpload(row):
 	try:
 		upload['reply']	= upload['manager'].post(request, upload['multiPart'])
 		upload['manager'].setParent(upload['reply'])
-		upload['reply'].finished.connect(finishUpload(row))
-		upload['reply'].uploadProgress.connect(updateProgress(upload))
+		upload['reply'].uploadProgress.connect(updateProgress(upload, row))
 	except Exception as e:
 		print(e)
 
@@ -70,20 +69,24 @@ def cancelUpload(row):
 		upload['reply'].abort()
 		UploadList.uploads.pop(row)
 
+def doneUpload(row):
+	UploadList.uploads.pop(row)
+
 def finishUpload(row):
 	upload	= UploadList.uploads[row]
 	#UploadList.uploads.pop(row)
-	upload['signal'].sender.emit()
+	upload['uploading']	= None
+	upload['signal'].sender.emit(None, None)
 
 def progress(function):
-	def wrapper(upload):
+	def wrapper(upload, row):
 		def updateProgress(sent, total, **kwargs):
-			return function(sent, total, upload, **kwargs)
+			return function(sent, total, upload, row, **kwargs)
 		return updateProgress
 	return wrapper
 
 @progress
-def updateProgress(sent, total, upload):
+def updateProgress(sent, total, upload, row):
 	if total > 0:
 		upload['progress']	= (sent / total) * 100
 		if upload['sent'] == 0:
@@ -91,7 +94,9 @@ def updateProgress(sent, total, upload):
 			upload['time']	= time.time()
 		else:
 			upload['estimated']	= getTimeLeft(sent, total, upload['sent'], upload['time'])
-		upload['signal'].sender.emit()
+		upload['signal'].sender.emit(upload, row)
+		if sent == total:
+			finishUpload(row)
 
 def requestList(manager):
 	url		= QtCore.QUrl('http://127.0.0.1:8000/medias')

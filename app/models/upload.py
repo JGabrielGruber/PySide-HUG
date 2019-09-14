@@ -1,7 +1,7 @@
 from	PySide2	import QtCore
 
 class SendSignal(QtCore.QObject):
-	sender = QtCore.Signal()
+	sender = QtCore.Signal(object, int)
 
 class Upload(QtCore.QObject):
 	id			= ""
