@@ -10,7 +10,7 @@ Small project focused on creating a REST API for file upload and user access, an
 * python-pip
 ### Install
 
-In your terminal(Linux):
+In your terminal:
 
 1. Create a VirtualEnv:
 ```
